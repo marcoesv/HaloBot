@@ -4,7 +4,6 @@ import json
 import os
 from dotenv import load_dotenv
 
-# Load environment variables from .env file
 load_dotenv()
 
 API_KEY = os.getenv("API_KEY")
@@ -44,8 +43,8 @@ Type: [Incident/Request]
 Title: [summary]
 User: [Full Name] ([email@company.com])
 Description: [details without HTML tags]
-Impact: [1=Global/VIP, 2=Regional, 3=Plant/Department, 4=Individual User] 
-Urgency: [1=Unable to work, 2=Workaround exists, 3=Interferes with work, 4=Would assist work]
+Impact: [Global/VIP, Regional, Plant/Department, Individual User] 
+Urgency: [Unable to work, Workaround exists, Interferes with work, Would assist work]
 
 2. Then add: "READY_TO_CREATE_TICKET"
 
@@ -63,8 +62,8 @@ json[{
 }]
 
 Custom field values:
-- Impact (165): Global/VIP, Regional, Plant/Department, Individual User
-- Urgency (166): Unable to work, Workaround exists, Interferes with work, Would assist work
+- Impact (165): 1=Global/VIP, 2=Regional, 3=Plant/Department, 4=Individual User
+- Urgency (166): 1=Unable to work, 2=Workaround exists, 3=Interferes with work, 4=Would assist work
 
 User Information Requirements:
 - ALWAYS ask for user's full name and corporate email if not provided
@@ -79,6 +78,7 @@ Rules:
 - Extract provided info, ask only for missing fields (including user name and email)
 - Never create incomplete tickets
 - All fields required: summary, details_html (with user table), tickettype_id, impact, urgency, user name, corporate email
+- if the user asks for you to choose fields, choose with the current context of their messages and respond with your decisions.
 """
 }]
 
@@ -138,7 +138,7 @@ def is_confirmation(user_input):
         return None
 
 def handle_bot_response(reply):
-    """Handle bot response and manage ticket state"""
+    """Handle bot response and manage ticket state - MODIFIED to always show JSON"""
     
     # Check if bot is ready to create ticket
     if "READY_TO_CREATE_TICKET" in reply:
@@ -148,10 +148,8 @@ def handle_bot_response(reply):
             ticket_state.pending_ticket = ticket_json[0]
             ticket_state.awaiting_confirmation = True
             
-            # Show only the user-friendly part (before READY_TO_CREATE_TICKET)
-            parts = reply.split("READY_TO_CREATE_TICKET")
-            user_display = parts[0].strip()
-            print(f"Bot: {user_display}")
+            # MODIFIED: Show the FULL response including JSON instead of hiding it
+            print(f"Bot: {reply}")
             print("\n🔄 Does this look correct? Type 'yes' to submit the ticket or 'no' to cancel.")
             return
     
