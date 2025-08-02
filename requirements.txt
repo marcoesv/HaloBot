@@ -1,0 +1,15 @@
+# Microsoft Bot Framework
+botbuilder-core>=4.15.0
+botbuilder-schema>=4.15.0
+
+# Web framework
+aiohttp>=3.8.0
+
+# HTTP requests
+requests>=2.28.0
+
+# Environment variables
+python-dotenv>=0.19.0
+
+# JSON handling (built-in)
+# re, json, os, asyncio, base64 are built-in Python modules

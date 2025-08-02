@@ -15,3 +15,6 @@ HaloBot is a Python-based chatbot designed to serve as an intermediary for emplo
 - Connects to HALO ITSM for ticket creation and status checks
 
 Further details and instructions will be added as the project develops.
+
+ngrok http 3978
+python app.py
