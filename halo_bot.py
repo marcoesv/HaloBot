@@ -1,5 +1,6 @@
 from botbuilder.core import ActivityHandler, TurnContext
-import halo_api
+from services.message_processor import process_message
+from services.file_service import process_attachments
 
 class HaloBot(ActivityHandler):
     def __init__(self, conversation_state):
@@ -10,10 +11,20 @@ class HaloBot(ActivityHandler):
         # Load or initialize conversation state dict
         state = await self.state_accessor.get(turn_context, dict)
         
-        user_input = turn_context.activity.text.strip()
+        user_input = turn_context.activity.text.strip() if turn_context.activity.text else ""
+        
+        # Process any file attachments
+        attachments_data = None
+        if turn_context.activity.attachments:
+            attachments_data = await process_attachments(turn_context.activity.attachments)
+            if attachments_data and attachments_data.get("error"):
+                # Send error message for invalid files
+                await turn_context.send_activity(attachments_data["error"])
+                await self.conversation_state.save_changes(turn_context)
+                return
 
-        # Pass user input and state to your existing processing function
-        reply = await halo_api.process_message(user_input, state)
+        # Pass user input, state, and attachments to processing function
+        reply = await process_message(user_input, state, attachments_data)
 
         await turn_context.send_activity(reply)
 
